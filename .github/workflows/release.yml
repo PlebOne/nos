@@ -1,0 +1,129 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Build binaries
+      run: |
+        # Build for multiple platforms
+        GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o nos-linux-amd64
+        GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o nos-linux-arm64
+        GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o nos-darwin-amd64
+        GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o nos-darwin-arm64
+        GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o nos-windows-amd64.exe
+    
+    - name: Build Debian package
+      run: |
+        chmod +x build-deb.sh
+        ./build-deb.sh
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## nos ${{ github.ref }}
+          
+          ### Installation
+          
+          #### Debian/Ubuntu:
+          ```bash
+          wget https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/nos_0.9_amd64.deb
+          sudo dpkg -i nos_0.9_amd64.deb
+          ```
+          
+          #### Other platforms:
+          Download the appropriate binary for your platform and move it to your PATH.
+          
+          ### Features
+          - 🔐 Secure key storage using system keyring
+          - 🎨 Beautiful terminal UI with Charm.sh
+          - 📡 Posts to multiple relays for reliability
+          - 🚀 Simple one-command posting
+          - ⚙️ Customizable relay management
+          - 🔄 Account switching with complete reset
+          - 📱 Interactive menu-driven interface
+          - ✅ Post verification across relays
+        draft: false
+        prerelease: false
+    
+    - name: Upload Debian Package
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/nos_0.9_amd64.deb
+        asset_name: nos_0.9_amd64.deb
+        asset_content_type: application/vnd.debian.binary-package
+    
+    - name: Upload Linux AMD64 Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./nos-linux-amd64
+        asset_name: nos-linux-amd64
+        asset_content_type: application/octet-stream
+    
+    - name: Upload Linux ARM64 Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./nos-linux-arm64
+        asset_name: nos-linux-arm64
+        asset_content_type: application/octet-stream
+    
+    - name: Upload macOS AMD64 Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./nos-darwin-amd64
+        asset_name: nos-darwin-amd64
+        asset_content_type: application/octet-stream
+    
+    - name: Upload macOS ARM64 Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./nos-darwin-arm64
+        asset_name: nos-darwin-arm64
+        asset_content_type: application/octet-stream
+    
+    - name: Upload Windows Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./nos-windows-amd64.exe
+        asset_name: nos-windows-amd64.exe
+        asset_content_type: application/octet-stream

@@ -3,6 +3,10 @@
   
   # nos - Simple Nostr CLI Client
   
+  [![GitHub Release](https://img.shields.io/github/release/timdev/nos.svg?style=flat-square)](https://github.com/timdev/nos/releases/latest)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/timdev/nos?style=flat-square)](https://goreportcard.com/report/github.com/timdev/nos)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+  
   A beautiful command-line client for posting to Nostr, built with Go and Charm.sh.
 </div>
 
@@ -19,16 +23,33 @@
 
 ## Installation
 
+### Debian/Ubuntu (Recommended)
+
+Download the latest .deb package from the [releases page](https://github.com/timdev/nos/releases/latest):
+
+```bash
+wget https://github.com/timdev/nos/releases/latest/download/nos_0.9_amd64.deb
+sudo dpkg -i nos_0.9_amd64.deb
+```
+
+### Using Go
+
 ```bash
 go install github.com/timdev/nos@latest
 ```
 
-Or build from source:
+### Build from source
 
 ```bash
+git clone https://github.com/timdev/nos.git
+cd nos
 go build -o nos
 sudo mv nos /usr/local/bin/
 ```
+
+### Other platforms
+
+Download the appropriate binary for your platform from the [releases page](https://github.com/timdev/nos/releases/latest).
 
 ## Usage
 
