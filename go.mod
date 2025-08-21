@@ -1,4 +1,4 @@
-module github.com/timdev/nos
+module codeberg.org/PlebOne/nos
 
 go 1.25.0
 

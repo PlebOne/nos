@@ -9,4 +9,4 @@ Description: Beautiful Nostr CLI client with interactive menu
  featuring an interactive menu-driven interface, secure key storage,
  multi-relay support, and a clean UI built with Charm.sh.
 Depends: libc6
-Homepage: https://github.com/timdev/nos
+Homepage: https://codeberg.org/PlebOne/nos

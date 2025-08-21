@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Build binaries
+      run: |
+        # Build for multiple platforms
+        GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o nos-linux-amd64
+        GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o nos-linux-arm64
+        GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o nos-darwin-amd64
+        GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o nos-darwin-arm64
+        GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o nos-windows-amd64.exe
+    
+    - name: Build Debian package
+      run: |
+        chmod +x build-deb.sh
+        ./build-deb.sh
+    
+    - name: Create Release Archive
+      run: |
+        mkdir -p release
+        cp nos-* release/
+        cp dist/nos_0.9_amd64.deb release/
+        cd release
+        tar -czf ../nos-${{ github.ref_name }}-binaries.tar.gz *
+    
+    - name: Upload Release Assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-binaries
+        path: |
+          nos-linux-amd64
+          nos-linux-arm64
+          nos-darwin-amd64
+          nos-darwin-arm64
+          nos-windows-amd64.exe
+          dist/nos_0.9_amd64.deb
+          nos-${{ github.ref_name }}-binaries.tar.gz

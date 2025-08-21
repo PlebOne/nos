@@ -35,7 +35,7 @@ Description: ${DESCRIPTION}
  featuring an interactive menu-driven interface, secure key storage,
  multi-relay support, and a clean UI built with Charm.sh.
 Depends: libc6
-Homepage: https://github.com/timdev/nos
+Homepage: https://codeberg.org/PlebOne/nos
 EOF
 
 # Create copyright file
@@ -43,7 +43,7 @@ cat > "${BUILD_DIR}/usr/share/doc/nos/copyright" << EOF
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: nos
 Upstream-Contact: Tim Dev <tim@example.com>
-Source: https://github.com/timdev/nos
+Source: https://codeberg.org/PlebOne/nos
 
 Files: *
 Copyright: 2024 Tim Dev
