@@ -1,4 +1,4 @@
-module codeberg.org/PlebOne/nos
+module github.com/PlebOne/nos
 
 go 1.25.0
 

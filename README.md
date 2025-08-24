@@ -3,8 +3,8 @@
   
   # nos - Simple Nostr CLI Client
   
-  [![Codeberg Release](https://img.shields.io/badge/release-v0.9-blue.svg?style=flat-square)](https://codeberg.org/PlebOne/nos/releases)
-  [![Go Report Card](https://goreportcard.com/badge/codeberg.org/PlebOne/nos?style=flat-square)](https://goreportcard.com/report/codeberg.org/PlebOne/nos)
+  [![GitHub Release](https://img.shields.io/badge/release-v0.9-blue.svg?style=flat-square)](https://github.com/PlebOne/nos/releases)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/PlebOne/nos?style=flat-square)](https://goreportcard.com/report/github.com/PlebOne/nos)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
   
   A beautiful command-line client for posting to Nostr, built with Go and Charm.sh.
@@ -25,23 +25,23 @@
 
 ### Debian/Ubuntu (Recommended)
 
-Download the latest .deb package from the [releases page](https://codeberg.org/PlebOne/nos/releases):
+Download the latest .deb package from the [releases page](https://github.com/PlebOne/nos/releases):
 
 ```bash
-wget https://codeberg.org/PlebOne/nos/releases/download/v0.9/nos_0.9_amd64.deb
+wget https://github.com/PlebOne/nos/releases/download/v0.9/nos_0.9_amd64.deb
 sudo dpkg -i nos_0.9_amd64.deb
 ```
 
 ### Using Go
 
 ```bash
-go install codeberg.org/PlebOne/nos@latest
+go install github.com/PlebOne/nos@latest
 ```
 
 ### Build from source
 
 ```bash
-git clone https://codeberg.org/PlebOne/nos.git
+git clone https://github.com/PlebOne/nos.git
 cd nos
 go build -o nos
 sudo mv nos /usr/local/bin/
@@ -49,7 +49,7 @@ sudo mv nos /usr/local/bin/
 
 ### Other platforms
 
-Download the appropriate binary for your platform from the [releases page](https://codeberg.org/PlebOne/nos/releases).
+Download the appropriate binary for your platform from the [releases page](https://github.com/PlebOne/nos/releases).
 
 ## Usage
 
