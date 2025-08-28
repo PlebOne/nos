@@ -1,12 +1,9 @@
 version: 2
-project_name: nos
-
-changelog:
-  use: github
 
 builds:
-  - id: nos
-    binary: nos
+  - binary: nos
+    env:
+      - CGO_ENABLED=0
     goos:
       - linux
       - windows
@@ -14,47 +11,16 @@ builds:
     goarch:
       - amd64
       - arm64
-    env:
-      - CGO_ENABLED=0
-    ldflags:
-      - -s
-      - -w
-      - -X main.version={{.Version}}
 
 archives:
-  - id: default
-    builds: [nos]
-    format_overrides:
-      - goos: windows
-        format: zip
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    files:
-      - README.md
-      - LICENSE
-      - nos.jpeg
-    wrap_in_directory: true
+  - format: binary
+    name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
 
 checksum:
-  name_template: "checksums.txt"
+  name_template: 'checksums.txt'
 
 release:
   mode: replace
 
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
-
-# Signing configuration using sigstore/cosign (keyless)
-signs:
-  - cmd: cosign
-    signature: '${artifact}.sig'
-    certificate: '${artifact}.pem'
-    args:
-      - sign-blob
-      - --yes
-      - --output-signature=${signature}
-      - --output-certificate=${certificate}
-      - --oidc-issuer=https://token.actions.githubusercontent.com
-      - --identity-token=${ACTIONS_ID_TOKEN_REQUEST_TOKEN}
-      - ${artifact}
-    artifacts: all
-    output: true
+changelog:
+  skip: true
