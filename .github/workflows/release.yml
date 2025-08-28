@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-
 name: Release
 
 on:
@@ -335,13 +334,6 @@ jobs:
             echo "Signature file $sig_file not found; skipping upload"
           fi
 
-                    echo "Could not determine upload URL for release tag $TAG" >&2
-                    echo "$release_json" >&2
-                    exit 1
-                  fi
-                  checksums_file=dist/checksums.txt
-                  sig_file="$checksums_file.sig"
-                  if [ ! -f "$checksums_file" ]; then
                     echo "$checksums_file not found" >&2
                     exit 1
                   fi
