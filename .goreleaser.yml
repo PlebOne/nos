@@ -38,12 +38,6 @@ checksum:
   name_template: "checksums.txt"
 
 release:
-  draft: false
-  github:
-    owner: PlebOne
-    name: nos
-  name_template: "Release {{.Tag}}"
-  prerelease: auto
   mode: replace
 
 snapshot:
