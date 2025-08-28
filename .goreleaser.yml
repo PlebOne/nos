@@ -1,8 +1,11 @@
 project_name: nos
+project_name: nos
+
+# Minimal goreleaser v2-compatible configuration
+changelog: {}
 
 builds:
   - id: nos
-    changelog: {}
     binary: nos
     goos:
       - linux
