@@ -2,7 +2,7 @@ project_name: nos
 
 builds:
   - id: nos
-    main: .
+    changelog: {}
     binary: nos
     goos:
       - linux
