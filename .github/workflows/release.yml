@@ -4,12 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-name: Release
-
-on:
-  push:
-    tags:
-      - 'v*'
 
 jobs:
   goreleaser:
@@ -23,7 +17,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.25'
+          go-version: '1.21'
 
       - name: Install cosign
         run: |
@@ -333,17 +327,3 @@ jobs:
           else
             echo "Signature file $sig_file not found; skipping upload"
           fi
-
-                    echo "$checksums_file not found" >&2
-                    exit 1
-                  fi
-                  echo "Uploading $checksums_file to release $TAG"
-                  curl --fail -s -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @"$checksums_file" "$upload_url?name=$(basename $checksums_file)"
-                  echo "Uploaded checksums to release"
-                  if [ -f "$sig_file" ]; then
-                    echo "Uploading signature $sig_file to release $TAG"
-                    curl --fail -s -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @"$sig_file" "$upload_url?name=$(basename $sig_file)"
-                    echo "Uploaded signature to release"
-                  else
-                    echo "Signature file $sig_file not found; skipping upload"
-                  fi
