@@ -1,8 +1,8 @@
-project_name: nos
+version: 2
 project_name: nos
 
-# Minimal goreleaser v2-compatible configuration
-changelog: {}
+changelog:
+  use: github
 
 builds:
   - id: nos
@@ -19,28 +19,20 @@ builds:
     ldflags:
       - -s
       - -w
+      - -X main.version={{.Version}}
 
 archives:
   - id: default
-    builds:
-      - nos
-    format: tar.gz
+    builds: [nos]
+    format_overrides:
+      - goos: windows
+        format: zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
       - README.md
       - LICENSE
       - nos.jpeg
-  - id: windows-zip
-    builds:
-      - nos
-    format: zip
-    goos:
-      - windows
-    name_template: "{{ .ProjectName }}_{{ .Version }}_windows_{{ .Arch }}"
-    files:
-      - README.md
-      - LICENSE
-      - nos.jpeg
+    wrap_in_directory: true
 
 checksum:
   name_template: "checksums.txt"
@@ -50,19 +42,17 @@ release:
     name_template: "{{ .Tag }}"
 
 snapshot:
-  name_template: "snapshot-{{ .Commit }}"
+  name_template: "{{ incpatch .Version }}-next"
 
 # Signing configuration using sigstore/cosign (keyless)
-# This uses keyless signing via OIDC. The workflow must have `permissions: id-token: write`.
 signs:
-  - id: cosign-sign
-    cmd: cosign
-    args:
+  - cmd: cosign
+    certificate: '${artifact}.pem'
+    args: 
       - sign-blob
-      - --keyless
-      - --output-signature
-      - "{{ .ArtifactPath }}.sig"
-      - "{{ .ArtifactPath }}"
-    artifacts:
-      - archives
-      - checksum
+      - --yes
+      - --output-signature=${signature}
+      - --output-certificate=${certificate}
+      - --experimental
+      - ${artifact}
+    artifacts: all
