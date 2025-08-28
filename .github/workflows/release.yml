@@ -16,6 +16,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify tag and commit
+        run: |
+          echo "Tag: ${GITHUB_REF#refs/tags/}"
+          echo "Commit: $(git rev-parse HEAD)"
+          echo "Tag points to: $(git rev-parse ${GITHUB_REF#refs/tags/})"
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
