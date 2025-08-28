@@ -22,6 +22,12 @@ jobs:
           echo "Commit: $(git rev-parse HEAD)"
           echo "Tag points to: $(git rev-parse ${GITHUB_REF#refs/tags/})"
 
+      - name: Check goreleaser config
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          version: latest
+          args: check
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
@@ -31,9 +37,10 @@ jobs:
         uses: goreleaser/goreleaser-action@v3
         with:
           version: latest
-          args: release --clean --debug
+          args: release --clean --timeout=10m
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: false
 
       - name: Verify signatures with cosign (keyless)
         run: |
