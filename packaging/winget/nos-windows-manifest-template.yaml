@@ -1,0 +1,16 @@
+PackageIdentifier: PlebOne.nos
+PackageVersion: {{VERSION}}
+PackageName: nos
+Publisher: PlebOne
+License: MIT
+LicenseUrl: https://raw.githubusercontent.com/PlebOne/nos/main/LICENSE
+ShortDescription: A beautiful command-line client for posting to Nostr
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    InstallerUrl: {{INSTALLER_URL}}
+    InstallerSha256: {{INSTALLER_SHA256}}
+  - Architecture: arm64
+    InstallerType: zip
+    InstallerUrl: {{INSTALLER_URL_ARM64}}
+    InstallerSha256: {{INSTALLER_SHA256_ARM64}}

@@ -1,0 +1,65 @@
+project_name: nos
+
+builds:
+  - id: nos
+    main: .
+    binary: nos
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s
+      - -w
+
+archives:
+  - id: default
+    builds:
+      - nos
+    format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE
+      - nos.jpeg
+  - id: windows-zip
+    builds:
+      - nos
+    format: zip
+    goos:
+      - windows
+    name_template: "{{ .ProjectName }}_{{ .Version }}_windows_{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE
+      - nos.jpeg
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  github:
+    name_template: "{{ .Tag }}"
+
+snapshot:
+  name_template: "snapshot-{{ .Commit }}"
+
+# Signing configuration using sigstore/cosign (keyless)
+# This uses keyless signing via OIDC. The workflow must have `permissions: id-token: write`.
+signs:
+  - id: cosign-sign
+    cmd: cosign
+    args:
+      - sign-blob
+      - --keyless
+      - --output-signature
+      - "{{ .ArtifactPath }}.sig"
+      - "{{ .ArtifactPath }}"
+    artifacts:
+      - archives
+      - checksum
