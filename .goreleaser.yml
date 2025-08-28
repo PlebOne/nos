@@ -47,12 +47,15 @@ snapshot:
 # Signing configuration using sigstore/cosign (keyless)
 signs:
   - cmd: cosign
+    signature: '${artifact}.sig'
     certificate: '${artifact}.pem'
-    args: 
+    args:
       - sign-blob
       - --yes
       - --output-signature=${signature}
       - --output-certificate=${certificate}
-      - --experimental
+      - --oidc-issuer=https://token.actions.githubusercontent.com
+      - --identity-token=${ACTIONS_ID_TOKEN_REQUEST_TOKEN}
       - ${artifact}
     artifacts: all
+    output: true
