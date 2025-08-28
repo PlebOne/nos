@@ -153,7 +153,7 @@ jobs:
           head: winget-manifest/${{ env.VERSION }}
 
       - name: Fork and create PR to microsoft/winget-pkgs (gh CLI)
-        if: ${{ secrets.WINGET_PKS_PAT != '' }}
+        if: ${{ env.WINGET_PKS_PAT }}
         env:
           WINGET_PKS_PAT: ${{ secrets.WINGET_PKS_PAT }}
           VERSION: ${{ env.VERSION }}
