@@ -71,6 +71,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Determine version
         id: version
@@ -162,6 +163,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
           commit-message: "feat: add winget manifest for version ${{ env.VERSION }}"
           title: "Add winget manifest for version ${{ env.VERSION }}"
           body: |
