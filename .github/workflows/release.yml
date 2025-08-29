@@ -58,3 +58,142 @@ jobs:
           else
             echo "No dist directory found"
           fi
+
+  winget:
+    runs-on: ubuntu-latest
+    needs: goreleaser
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG#v}
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Wait for release assets
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "Waiting for release assets to be available..."
+          for i in {1..10}; do
+            echo "Attempt $i: Checking for release assets..."
+            assets=$(gh release view $TAG --repo ${{ github.repository }} --json assets --jq '.assets[].name' || echo "")
+            if echo "$assets" | grep -q "windows_amd64.tar.gz\|windows_amd64.zip"; then
+              echo "Windows assets found!"
+              break
+            fi
+            echo "Assets not ready yet, waiting 30 seconds..."
+            sleep 30
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Windows release assets
+        id: assets
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          REPO=${{ github.repository }}
+          
+          # Get release info
+          release_info=$(gh release view $TAG --repo $REPO --json assets)
+          
+          # Find Windows assets
+          FILE_X64=$(echo "$release_info" | jq -r '.assets[] | select(.name | contains("windows_amd64")) | .name' | head -1)
+          FILE_ARM64=$(echo "$release_info" | jq -r '.assets[] | select(.name | contains("windows_arm64")) | .name' | head -1)
+          
+          if [ -z "$FILE_X64" ]; then
+            echo "No Windows x64 asset found"
+            exit 1
+          fi
+          
+          # Download and get checksums
+          echo "Downloading $FILE_X64..."
+          gh release download $TAG --pattern "$FILE_X64" --repo $REPO
+          SHA_X64=$(sha256sum "$FILE_X64" | awk '{print $1}')
+          
+          URL_X64="https://github.com/$REPO/releases/download/$TAG/$FILE_X64"
+          
+          echo "FILE_X64=$FILE_X64" >> $GITHUB_ENV
+          echo "SHA_X64=$SHA_X64" >> $GITHUB_ENV
+          echo "URL_X64=$URL_X64" >> $GITHUB_ENV
+          
+          if [ -n "$FILE_ARM64" ] && [ "$FILE_ARM64" != "null" ]; then
+            echo "Downloading $FILE_ARM64..."
+            gh release download $TAG --pattern "$FILE_ARM64" --repo $REPO
+            SHA_ARM64=$(sha256sum "$FILE_ARM64" | awk '{print $1}')
+            URL_ARM64="https://github.com/$REPO/releases/download/$TAG/$FILE_ARM64"
+            
+            echo "FILE_ARM64=$FILE_ARM64" >> $GITHUB_ENV
+            echo "SHA_ARM64=$SHA_ARM64" >> $GITHUB_ENV
+            echo "URL_ARM64=$URL_ARM64" >> $GITHUB_ENV
+          else
+            echo "No Windows ARM64 asset found, skipping"
+            echo "FILE_ARM64=" >> $GITHUB_ENV
+            echo "SHA_ARM64=" >> $GITHUB_ENV
+            echo "URL_ARM64=" >> $GITHUB_ENV
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate winget manifest
+        run: |
+          echo "Generating winget manifest for version $VERSION"
+          echo "X64: $URL_X64 ($SHA_X64)"
+          if [ -n "$URL_ARM64" ]; then
+            echo "ARM64: $URL_ARM64 ($SHA_ARM64)"
+            pwsh ./packaging/winget/generate-winget-manifest.ps1 -Version "$VERSION" -InstallerUrlX64 "$URL_X64" -Sha256X64 "$SHA_X64" -InstallerUrlArm64 "$URL_ARM64" -Sha256Arm64 "$SHA_ARM64"
+          else
+            echo "ARM64: Not available"
+            pwsh ./packaging/winget/generate-winget-manifest.ps1 -Version "$VERSION" -InstallerUrlX64 "$URL_X64" -Sha256X64 "$SHA_X64"
+          fi
+
+      - name: Create winget manifest PR
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          BRANCH="winget-manifest-$VERSION"
+          git checkout -b "$BRANCH"
+          
+          # Add the generated manifest
+          git add packaging/winget/PlebOne/nos/$VERSION/
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          git commit -m "feat: add winget manifest for version $VERSION"
+          git push --set-upstream origin "$BRANCH"
+          
+          # Create PR using GitHub CLI
+          gh pr create \
+            --title "Add winget manifest for version $VERSION" \
+            --body "Auto-generated winget manifest for nos version $VERSION
+
+          This PR contains the winget package manifest files for the latest release.
+          
+          **Files added:**
+          - \`packaging/winget/PlebOne/nos/$VERSION/manifest.yaml\`
+          
+          **Release assets:**
+          - Windows x64: $FILE_X64
+          - Windows ARM64: ${FILE_ARM64:-"Not available"}
+          
+          The manifest will allow users to install nos via:
+          \`\`\`
+          winget install PlebOne.nos
+          \`\`\`" \
+            --head "$BRANCH" \
+            --base main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
