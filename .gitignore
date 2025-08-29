@@ -18,7 +18,8 @@
 go.work
 
 # Binary
-nos
+/nos
+nos.exe
 
 # Build artifacts
 dist/

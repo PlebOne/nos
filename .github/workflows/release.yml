@@ -165,7 +165,7 @@ jobs:
           git checkout -b "$BRANCH"
           
           # Add the generated manifest
-          git add packaging/winget/PlebOne/nos/$VERSION/
+          git add -f packaging/winget/PlebOne/nos/$VERSION/
           
           if git diff --staged --quiet; then
             echo "No changes to commit"
