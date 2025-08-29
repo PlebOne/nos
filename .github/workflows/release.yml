@@ -29,6 +29,7 @@ jobs:
           rm -f nos-test
           rm -rf dist/
           git clean -fd
+          git reset --hard HEAD
 
       - name: Check goreleaser config
         uses: goreleaser/goreleaser-action@v3
