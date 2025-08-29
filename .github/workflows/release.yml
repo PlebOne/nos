@@ -158,51 +158,52 @@ jobs:
             pwsh ./packaging/winget/generate-winget-manifest.ps1 -Version "$VERSION" -InstallerUrlX64 "$URL_X64" -Sha256X64 "$SHA_X64"
           fi
 
-      - name: Create winget manifest and PR
-        id: create-pr
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          commit-message: "feat: add winget manifest for version ${{ env.VERSION }}"
-          title: "Add winget manifest for version ${{ env.VERSION }}"
-          body: |
-            🤖 **Auto-generated winget manifest for nos v${{ env.VERSION }}**
-            
-            This PR contains the winget package manifest files for the latest release.
-            
-            **📄 Files added:**
-            - `packaging/winget/PlebOne/nos/${{ env.VERSION }}/manifest.yaml`
-            
-            **📦 Release assets:**
-            - Windows x64: ${{ env.FILE_X64 }}
-            - Windows ARM64: ${{ env.FILE_ARM64 || 'Not available' }}
-            
-            **🚀 After merging, users can install via:**
-            ```bash
-            winget install PlebOne.nos
-            ```
-            
-            **✅ Manifest validated and ready for merge**
-            
-            *This PR will be automatically merged in 30 seconds to complete the release process.*
-          branch: winget-manifest-${{ env.VERSION }}
-          delete-branch: true
-          draft: false
-          add-paths: |
-            packaging/winget/PlebOne/nos/${{ env.VERSION }}/
-
-      - name: Auto-merge winget manifest PR
-        if: steps.create-pr.outputs.pull-request-number
+      - name: Commit winget manifest directly to main
         run: |
-          PR_NUMBER="${{ steps.create-pr.outputs.pull-request-number }}"
-          echo "⏳ Waiting 30 seconds before auto-merge..."
-          sleep 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          echo "🔄 Auto-merging PR #$PR_NUMBER..."
-          gh pr merge "$PR_NUMBER" --merge --delete-branch
+          # Add the generated manifest
+          git add -f packaging/winget/PlebOne/nos/$VERSION/
           
-          echo "✅ Winget manifest automatically merged!"
-          echo "🎉 Release v${{ env.VERSION }} is now complete with winget support!"
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          git commit -m "feat: add winget manifest for version $VERSION
+
+          🤖 Auto-generated winget manifest for nos v$VERSION
+
+          📄 Files added:
+          - packaging/winget/PlebOne/nos/$VERSION/manifest.yaml
+
+          📦 Release assets:
+          - Windows x64: $FILE_X64
+          - Windows ARM64: ${FILE_ARM64:-'Not available'}
+
+          🚀 Users can now install via:
+          winget install PlebOne.nos"
+          
+          git push origin main
+          
+          echo "✅ Winget manifest committed directly to main branch!"
+          echo "🎉 Release v$VERSION is now complete with winget support!"
+          echo ""
+          echo "📄 Manifest: packaging/winget/PlebOne/nos/$VERSION/manifest.yaml"
+          echo "🚀 Install command: winget install PlebOne.nos"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release summary
+        run: |
+          echo "🎊 **Release v$VERSION Complete!**"
+          echo ""
+          echo "✅ **What was created:**"
+          echo "- 🏗️ Multi-platform binaries (Linux, Windows, macOS)"
+          echo "- 📦 GitHub release with assets"
+          echo "- 🪟 Winget manifest for Windows users"
+          echo ""
+          echo "🚀 **Installation options:**"
+          echo "- Download from: https://github.com/${{ github.repository }}/releases/tag/v$VERSION"
+          echo "- Windows users: \`winget install PlebOne.nos\`"
