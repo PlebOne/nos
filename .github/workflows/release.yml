@@ -24,6 +24,12 @@ jobs:
       - name: Test build
         run: go build -o nos-test .
 
+      - name: Clean up test files
+        run: |
+          rm -f nos-test
+          rm -rf dist/
+          git clean -fd
+
       - name: Check goreleaser config
         uses: goreleaser/goreleaser-action@v3
         with:
