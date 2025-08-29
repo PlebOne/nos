@@ -123,10 +123,14 @@ jobs:
           tar -xzf "$FILE_X64"
           
           # Find the extracted .exe file
-          EXE_X64=$(find . -name "nos.exe" -path "./*/nos.exe" | head -1)
-          if [ -z "$EXE_X64" ]; then
-            echo "Could not find nos.exe in extracted archive"
-            exit 1
+          if [ -f "nos.exe" ]; then
+            EXE_X64="nos.exe"
+          else
+            EXE_X64=$(find . -name "nos.exe" | head -1)
+            if [ -z "$EXE_X64" ]; then
+              echo "Could not find nos.exe in extracted archive"
+              exit 1
+            fi
           fi
           
           # Copy and rename for upload
@@ -148,7 +152,11 @@ jobs:
             tar -xzf "$FILE_ARM64"
             
             # Find the extracted ARM64 .exe file
-            EXE_ARM64=$(find . -name "nos.exe" -path "./*arm64*/nos.exe" | head -1)
+            if [ -f "nos.exe" ]; then
+              EXE_ARM64="nos.exe"
+            else
+              EXE_ARM64=$(find . -name "nos.exe" | head -1)
+            fi
             if [ -n "$EXE_ARM64" ]; then
               cp "$EXE_ARM64" "nos-$VERSION-windows-arm64.exe"
               SHA_ARM64=$(sha256sum "nos-$VERSION-windows-arm64.exe" | awk '{print $1}')
