@@ -20,6 +20,9 @@ go.work
 # Binary
 nos
 
+# Build artifacts
+dist/
+
 # IDE
 .idea/
 .vscode/
