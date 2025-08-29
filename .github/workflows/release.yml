@@ -66,6 +66,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -156,44 +157,34 @@ jobs:
             pwsh ./packaging/winget/generate-winget-manifest.ps1 -Version "$VERSION" -InstallerUrlX64 "$URL_X64" -Sha256X64 "$SHA_X64"
           fi
 
-      - name: Create winget manifest PR
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          BRANCH="winget-manifest-$VERSION"
-          git checkout -b "$BRANCH"
-          
-          # Add the generated manifest
-          git add -f packaging/winget/PlebOne/nos/$VERSION/
-          
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-          
-          git commit -m "feat: add winget manifest for version $VERSION"
-          git push --set-upstream origin "$BRANCH"
-          
-          # Create PR using GitHub CLI
-          gh pr create \
-            --title "Add winget manifest for version $VERSION" \
-            --body "Auto-generated winget manifest for nos version $VERSION
-
-          This PR contains the winget package manifest files for the latest release.
-          
-          **Files added:**
-          - \`packaging/winget/PlebOne/nos/$VERSION/manifest.yaml\`
-          
-          **Release assets:**
-          - Windows x64: $FILE_X64
-          - Windows ARM64: ${FILE_ARM64:-"Not available"}
-          
-          The manifest will allow users to install nos via:
-          \`\`\`
-          winget install PlebOne.nos
-          \`\`\`" \
-            --head "$BRANCH" \
-            --base main
+      - name: Create winget manifest and PR
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feat: add winget manifest for version ${{ env.VERSION }}"
+          title: "Add winget manifest for version ${{ env.VERSION }}"
+          body: |
+            🤖 **Auto-generated winget manifest for nos v${{ env.VERSION }}**
+            
+            This PR contains the winget package manifest files for the latest release.
+            
+            **📄 Files added:**
+            - `packaging/winget/PlebOne/nos/${{ env.VERSION }}/manifest.yaml`
+            
+            **📦 Release assets:**
+            - Windows x64: ${{ env.FILE_X64 }}
+            - Windows ARM64: ${{ env.FILE_ARM64 || 'Not available' }}
+            
+            **🚀 After merging, users can install via:**
+            ```bash
+            winget install PlebOne.nos
+            ```
+            
+            **✅ Manifest validated and ready for merge**
+          branch: winget-manifest-${{ env.VERSION }}
+          delete-branch: true
+          draft: false
+          add-paths: |
+            packaging/winget/PlebOne/nos/${{ env.VERSION }}/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
