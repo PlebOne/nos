@@ -81,13 +81,33 @@ This opens a beautiful menu-driven interface where you can:
 
 ### Quick Command Mode
 
-For faster posting, you can also use command-line arguments:
+For faster posting, you can use command-line arguments or stdin:
 
 ```bash
 # Post a message directly
 nos "Hello Nostr world!"
 
-# First time setup will prompt for your nsec key
+# Post from stdin (best for hashtags and URLs)
+echo "Check out #bitcoin at https://bitcoin.org" | nos
+
+# Multi-line posts with stdin
+echo "Line 1
+Line 2
+#hashtag https://example.com" | nos
+
+# Using PowerShell (Windows)
+"My #nostr post with https://example.com" | nos
+```
+
+**💡 Tip**: Use stdin (`echo "message" | nos`) when your message contains special characters like hashtags (`#`) or URLs, as it avoids shell escaping issues.
+
+### First Time Setup
+
+The first time you post, nos will prompt for your nsec (private key):
+
+```bash
+nos "My first post"
+# Will prompt: "Enter your nsec key (starts with nsec1):"
 ```
 
 ### Verifying Your Posts

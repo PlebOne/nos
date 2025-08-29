@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -50,6 +52,28 @@ var defaultRelays = []string{
 }
 
 func main() {
+	// Check if there's data available on stdin
+	stat, _ := os.Stdin.Stat()
+	hasStdinData := (stat.Mode() & os.ModeCharDevice) == 0
+
+	// If there's stdin data, read it and post
+	if hasStdinData {
+		scanner := bufio.NewScanner(os.Stdin)
+		var lines []string
+		for scanner.Scan() {
+			lines = append(lines, scanner.Text())
+		}
+		if err := scanner.Err(); err != nil && err != io.EOF {
+			fmt.Println(errorStyle.Render("Error reading from stdin: " + err.Error()))
+			os.Exit(1)
+		}
+		if len(lines) > 0 {
+			message := strings.Join(lines, "\n")
+			quickPost(message)
+			return
+		}
+	}
+
 	// If no arguments, show interactive menu
 	if len(os.Args) < 2 {
 		showMainMenu()
@@ -205,17 +229,23 @@ func showUsage() {
 		fmt.Println(titleStyle.Render("Welcome to nos! 🚀"))
 		fmt.Println(infoStyle.Render("Usage:"))
 		fmt.Println(infoStyle.Render("  nos <message>              - Post a message to Nostr"))
+		fmt.Println(infoStyle.Render("  echo \"message\" | nos        - Post from stdin (good for hashtags/URLs)"))
 		fmt.Println(infoStyle.Render("  nos relay                  - Manage relay list"))
 		fmt.Println(infoStyle.Render("  nos verify                 - Check if your posts are on relays"))
 		fmt.Println(infoStyle.Render("  nos reset                  - Reset all data (change account)"))
 		fmt.Println(infoStyle.Render("\nFirst time? Run 'nos' with a message to set up your key."))
+		fmt.Println(infoStyle.Render("\nTip: Use stdin for messages with special characters:"))
+		fmt.Println(infoStyle.Render("  echo \"Check out #bitcoin at https://bitcoin.org\" | nos"))
 	} else {
 		fmt.Println(errorStyle.Render("Error: Please provide a message to post"))
 		fmt.Println(infoStyle.Render("Usage:"))
 		fmt.Println(infoStyle.Render("  nos <message>              - Post a message to Nostr"))
+		fmt.Println(infoStyle.Render("  echo \"message\" | nos        - Post from stdin (good for hashtags/URLs)"))
 		fmt.Println(infoStyle.Render("  nos relay                  - Manage relay list"))
 		fmt.Println(infoStyle.Render("  nos verify                 - Check if your posts are on relays"))
 		fmt.Println(infoStyle.Render("  nos reset                  - Reset all data (change account)"))
+		fmt.Println(infoStyle.Render("\nTip: Use stdin for messages with special characters:"))
+		fmt.Println(infoStyle.Render("  echo \"Check out #bitcoin at https://bitcoin.org\" | nos"))
 	}
 }
 
