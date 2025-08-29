@@ -1,7 +1,5 @@
 version: 2
 
-project_name: nos
-
 builds:
   - binary: nos
     env:
@@ -15,13 +13,9 @@ builds:
       - arm64
     ldflags:
       - "-s -w"
-      - "-X main.version={{.Version}}"
 
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    files:
-      - README.md
-      - LICENSE
 
 checksum:
   name_template: 'checksums.txt'
@@ -30,8 +24,4 @@ release:
   draft: false
 
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^test:'
-      - '^chore:'
+  disable: true
