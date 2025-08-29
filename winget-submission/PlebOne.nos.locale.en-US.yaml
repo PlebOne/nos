@@ -34,4 +34,4 @@ ReleaseNotes: |-
   Release v1.1.1 includes automated winget support and improved release pipeline.
 ReleaseNotesUrl: https://github.com/PlebOne/nos/releases/tag/v1.1.1
 ManifestType: defaultLocale
-ManifestVersion: 1.8.0
+ManifestVersion: 1.10.0
