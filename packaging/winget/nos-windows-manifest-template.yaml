@@ -7,10 +7,16 @@ LicenseUrl: https://raw.githubusercontent.com/PlebOne/nos/main/LICENSE
 ShortDescription: A beautiful command-line client for posting to Nostr
 Installers:
   - Architecture: x64
-    InstallerType: zip
+    InstallerType: exe
     InstallerUrl: {{INSTALLER_URL}}
     InstallerSha256: {{INSTALLER_SHA256}}
+    InstallerSwitches:
+      Silent: ""
+      SilentWithProgress: ""
   - Architecture: arm64
-    InstallerType: zip
+    InstallerType: exe
     InstallerUrl: {{INSTALLER_URL_ARM64}}
     InstallerSha256: {{INSTALLER_SHA256_ARM64}}
+    InstallerSwitches:
+      Silent: ""
+      SilentWithProgress: ""

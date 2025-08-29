@@ -99,7 +99,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get Windows release assets
+      - name: Get Windows release assets and extract executables
         id: assets
         run: |
           TAG=${GITHUB_REF#refs/tags/}
@@ -117,26 +117,54 @@ jobs:
             exit 1
           fi
           
-          # Download and get checksums
-          echo "Downloading $FILE_X64..."
+          # Download and extract Windows x64 executable
+          echo "Downloading and extracting $FILE_X64..."
           gh release download $TAG --pattern "$FILE_X64" --repo $REPO
-          SHA_X64=$(sha256sum "$FILE_X64" | awk '{print $1}')
+          tar -xzf "$FILE_X64"
           
-          URL_X64="https://github.com/$REPO/releases/download/$TAG/$FILE_X64"
+          # Find the extracted .exe file
+          EXE_X64=$(find . -name "nos.exe" -path "./*/nos.exe" | head -1)
+          if [ -z "$EXE_X64" ]; then
+            echo "Could not find nos.exe in extracted archive"
+            exit 1
+          fi
           
-          echo "FILE_X64=$FILE_X64" >> $GITHUB_ENV
+          # Copy and rename for upload
+          cp "$EXE_X64" "nos-$VERSION-windows-amd64.exe"
+          SHA_X64=$(sha256sum "nos-$VERSION-windows-amd64.exe" | awk '{print $1}')
+          
+          # Upload the standalone .exe file to the release
+          gh release upload $TAG "nos-$VERSION-windows-amd64.exe" --repo $REPO
+          
+          # Set environment variables for manifest generation
+          echo "FILE_X64=nos-$VERSION-windows-amd64.exe" >> $GITHUB_ENV
           echo "SHA_X64=$SHA_X64" >> $GITHUB_ENV
-          echo "URL_X64=$URL_X64" >> $GITHUB_ENV
+          echo "URL_X64=https://github.com/$REPO/releases/download/$TAG/nos-$VERSION-windows-amd64.exe" >> $GITHUB_ENV
           
+          # Handle ARM64 if available
           if [ -n "$FILE_ARM64" ] && [ "$FILE_ARM64" != "null" ]; then
-            echo "Downloading $FILE_ARM64..."
+            echo "Downloading and extracting $FILE_ARM64..."
             gh release download $TAG --pattern "$FILE_ARM64" --repo $REPO
-            SHA_ARM64=$(sha256sum "$FILE_ARM64" | awk '{print $1}')
-            URL_ARM64="https://github.com/$REPO/releases/download/$TAG/$FILE_ARM64"
+            tar -xzf "$FILE_ARM64"
             
-            echo "FILE_ARM64=$FILE_ARM64" >> $GITHUB_ENV
-            echo "SHA_ARM64=$SHA_ARM64" >> $GITHUB_ENV
-            echo "URL_ARM64=$URL_ARM64" >> $GITHUB_ENV
+            # Find the extracted ARM64 .exe file
+            EXE_ARM64=$(find . -name "nos.exe" -path "./*arm64*/nos.exe" | head -1)
+            if [ -n "$EXE_ARM64" ]; then
+              cp "$EXE_ARM64" "nos-$VERSION-windows-arm64.exe"
+              SHA_ARM64=$(sha256sum "nos-$VERSION-windows-arm64.exe" | awk '{print $1}')
+              
+              # Upload the standalone ARM64 .exe file
+              gh release upload $TAG "nos-$VERSION-windows-arm64.exe" --repo $REPO
+              
+              echo "FILE_ARM64=nos-$VERSION-windows-arm64.exe" >> $GITHUB_ENV
+              echo "SHA_ARM64=$SHA_ARM64" >> $GITHUB_ENV
+              echo "URL_ARM64=https://github.com/$REPO/releases/download/$TAG/nos-$VERSION-windows-arm64.exe" >> $GITHUB_ENV
+            else
+              echo "Could not find ARM64 nos.exe in extracted archive"
+              echo "FILE_ARM64=" >> $GITHUB_ENV
+              echo "SHA_ARM64=" >> $GITHUB_ENV
+              echo "URL_ARM64=" >> $GITHUB_ENV
+            fi
           else
             echo "No Windows ARM64 asset found, skipping"
             echo "FILE_ARM64=" >> $GITHUB_ENV

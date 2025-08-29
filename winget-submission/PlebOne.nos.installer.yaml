@@ -1,0 +1,22 @@
+# Created using winget-create 1.6.0.0
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.8.0.schema.json
+
+PackageIdentifier: PlebOne.nos
+PackageVersion: 1.1.1
+Platform:
+- Windows.Desktop
+MinimumOSVersion: 10.0.0.0
+InstallerType: zip
+NestedInstallerType: portable
+NestedInstallerFiles:
+- RelativeFilePath: nos.exe
+  PortableCommandAlias: nos
+Installers:
+- Architecture: x64
+  InstallerUrl: https://github.com/PlebOne/nos/releases/download/v1.1.1/nos_1.1.1_windows_amd64.tar.gz
+  InstallerSha256: f6d0b28539a2a7c9b900cb05f306d56728764162bc09777b2bc3b76c80f85d97
+- Architecture: arm64
+  InstallerUrl: https://github.com/PlebOne/nos/releases/download/v1.1.1/nos_1.1.1_windows_arm64.tar.gz
+  InstallerSha256: 0b9c802b9096ac0705f5dca83a0fde23945dfcdc53ee12baf07cbcebc2c86abe
+ManifestType: installer
+ManifestVersion: 1.8.0
