@@ -6,6 +6,8 @@ License: MIT
 LicenseUrl: https://raw.githubusercontent.com/PlebOne/nos/main/LICENSE
 ShortDescription: A beautiful command-line client for posting to Nostr
 InstallerType: portable
+Commands:
+- nos
 Installers:
   - Architecture: x64
     InstallerUrl: {{URL_X64}}
