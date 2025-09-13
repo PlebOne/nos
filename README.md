@@ -34,7 +34,20 @@ Install via Microsoft winget (Windows Package Manager):
 winget install PlebOne.nos
 ```
 
-*Package is currently under review by Microsoft. Once approved, this will be the easiest way to install and update nos.*
+**Note**: If you encounter a security warning during winget installation, this is because the executable is not yet code-signed. You can:
+
+1. **Alternative method**: Download manually from [releases](https://github.com/PlebOne/nos/releases) and run:
+   ```powershell
+   # Download the .exe file, then:
+   Unblock-File -Path "path\to\nos-VERSION-windows-amd64.exe"
+   ```
+
+2. **One-liner install** (PowerShell as Administrator):
+   ```powershell
+   Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/PlebOne/nos/main/install.ps1'))
+   ```
+
+*Code signing is being implemented to resolve this issue permanently.*
 
 ### Manual Download
 
@@ -43,6 +56,8 @@ Download the latest release for your platform from the [releases page](https://g
 - **Windows**: Download `nos-VERSION-windows-amd64.exe` or `nos-VERSION-windows-arm64.exe`
 - **Linux**: Download `nos_VERSION_linux_amd64.tar.gz` or `nos_VERSION_linux_arm64.tar.gz`
 - **macOS**: Download `nos_VERSION_darwin_amd64.tar.gz` or `nos_VERSION_darwin_arm64.tar.gz`
+
+**Windows users**: After downloading, right-click the .exe file → Properties → Check "Unblock" if present.
 
 ### Using Go
 

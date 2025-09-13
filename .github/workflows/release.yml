@@ -45,6 +45,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install cosign for code signing
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign Windows binaries
+        run: |
+          echo "Signing Windows executables..."
+          # Find and sign all Windows .exe files
+          for exe_file in $(find dist/ -name "*.exe" 2>/dev/null || true); do
+            if [ -f "$exe_file" ]; then
+              echo "Signing: $exe_file"
+              cosign sign-blob --yes "$exe_file" --output-signature "${exe_file}.sig" --output-certificate "${exe_file}.pem"
+              echo "✅ Signed: $exe_file"
+            fi
+          done
+        env:
+          COSIGN_EXPERIMENTAL: 1
+
+      - name: Upload signatures to release
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "Uploading signature files to release $TAG..."
+          for sig_file in $(find dist/ -name "*.sig" -o -name "*.pem" 2>/dev/null || true); do
+            if [ -f "$sig_file" ]; then
+              echo "Uploading: $sig_file"
+              gh release upload "$TAG" "$sig_file" --clobber
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: List release artifacts
         run: |
           echo "=== Release artifacts created ==="
