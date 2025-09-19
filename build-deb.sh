@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # nos debian package build script
-VERSION="1.1.5"
+VERSION="1.1.6"
 PACKAGE_NAME="nos"
 MAINTAINER="PlebOne <contact@plebdev.org>"
 DESCRIPTION="Beautiful Nostr CLI client with interactive menu"

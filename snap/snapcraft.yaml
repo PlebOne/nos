@@ -1,6 +1,6 @@
 name: nos
 base: core22
-version: '1.1.5'
+version: '1.1.6'
 summary: Beautiful Nostr CLI Client
 description: |
   A beautiful command-line client for posting to Nostr, built with Go and Charm.sh.
