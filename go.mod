@@ -1,6 +1,6 @@
 module github.com/PlebOne/nos
 
-go 1.25
+go 1.24.1
 
 require (
 	github.com/charmbracelet/huh v0.7.0

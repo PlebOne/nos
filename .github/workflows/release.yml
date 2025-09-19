@@ -19,7 +19,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.25'
+          go-version: '1.22'
 
       - name: Test build
         run: go build -o nos-test .
@@ -290,7 +290,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.25'
+          go-version: '1.22'
 
       - name: Determine version
         id: version

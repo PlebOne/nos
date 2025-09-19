@@ -36,9 +36,17 @@ parts:
   nos:
     plugin: go
     source: .
-    go-channel: "1.25/stable"
-    build-snaps:
-      - go/1.25/stable
+    build-packages:
+      - git
+    stage-packages:
+      - ca-certificates
     override-build: |
       export CGO_ENABLED=0
+      export GOOS=linux
+      export GOARCH=$CRAFT_TARGET_ARCH
+      case $CRAFT_TARGET_ARCH in
+        amd64) export GOARCH=amd64 ;;
+        arm64) export GOARCH=arm64 ;;
+        armhf) export GOARCH=arm ;;
+      esac
       go build -ldflags="-s -w" -o $SNAPCRAFT_PART_INSTALL/bin/nos .
