@@ -32,18 +32,18 @@ Download and install the .deb package:
 
 ```bash
 # Download the latest .deb package from releases
-wget https://github.com/PlebOne/nos/releases/latest/download/nos_1.1.8_amd64.deb
+wget https://github.com/PlebOne/nos/releases/latest/download/nos_1.1.9_amd64.deb
 
 # Install the package
-sudo dpkg -i nos_1.1.8_amd64.deb
+sudo dpkg -i nos_1.1.9_amd64.deb
 
 # If you encounter dependency issues, run:
 sudo apt-get install -f
 ```
 
 **Alternative architectures:**
-- ARM64: `nos_1.1.8_arm64.deb`
-- ARMv7: `nos_1.1.8_armhf.deb`
+- ARM64: `nos_1.1.9_arm64.deb`
+- ARMv7: `nos_1.1.9_armhf.deb`
 
 ### Linux (Snap Store)
 

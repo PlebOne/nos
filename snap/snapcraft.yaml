@@ -1,6 +1,6 @@
 name: nos
 base: core22
-version: '1.1.8'
+version: '1.1.9'
 summary: Beautiful Nostr CLI Client
 description: |
   A beautiful command-line client for posting to Nostr, built with Go and Charm.sh.
@@ -34,10 +34,19 @@ apps:
 
 parts:
   nos:
-    plugin: go
+    plugin: nil
     source: .
-    build-snaps:
-      - go/1.22/stable
+    build-packages:
+      - wget
+      - tar
     override-build: |
+      # Install Go manually to support go.mod version
+      export GOVERSION=1.24.1
+      wget -q https://go.dev/dl/go${GOVERSION}.linux-amd64.tar.gz
+      tar -C /usr/local -xzf go${GOVERSION}.linux-amd64.tar.gz
+      export PATH=/usr/local/go/bin:$PATH
       export CGO_ENABLED=0
+      
+      # Build the application
+      cd $SNAPCRAFT_PART_SRC
       go build -ldflags="-s -w" -o $SNAPCRAFT_PART_INSTALL/bin/nos .
