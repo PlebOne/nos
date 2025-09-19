@@ -15,7 +15,7 @@ if ! command -v snapcraft &> /dev/null; then
 fi
 
 # Navigate to the project root
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 # Clean any previous builds
 echo "🧹 Cleaning previous builds..."

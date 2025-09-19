@@ -4,7 +4,7 @@ This directory contains the configuration and scripts for building the `nos` sna
 
 ## Files:
 
-- `snapcraft.yaml` - Main snap configuration file
+- `../snapcraft.yaml` - Main snap configuration file
 - `build-snap.sh` - Script to build the snap locally
 - `publish-snap.sh` - Script to publish the snap to the Snap Store
 
@@ -12,7 +12,7 @@ This directory contains the configuration and scripts for building the `nos` sna
 
 ```bash
 # Build the snap locally
-./snap/build-snap.sh
+./snap/local/build-snap.sh
 
 # Test the snap locally
 sudo snap install --dangerous ./nos_*.snap
@@ -32,5 +32,5 @@ sudo snap install --dangerous ./nos_*.snap
 
 3. Build and publish:
    ```bash
-   ./snap/publish-snap.sh
+   ./snap/local/publish-snap.sh
    ```

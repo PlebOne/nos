@@ -22,7 +22,7 @@ if ! snapcraft whoami &> /dev/null; then
 fi
 
 # Navigate to the project root
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 # Prompt for channel (stable, candidate, beta, edge)
 echo "📋 Select release channel:"
