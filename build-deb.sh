@@ -1,11 +1,24 @@
 #!/bin/bash
 
 # nos debian package build script
-VERSION="0.9"
-ARCH="amd64"
+VERSION="1.1.4"
 PACKAGE_NAME="nos"
-MAINTAINER="Tim Dev <tim@example.com>"
+MAINTAINER="PlebOne <contact@plebdev.org>"
 DESCRIPTION="Beautiful Nostr CLI client with interactive menu"
+
+# Detect architecture or use provided argument
+if [ -n "$1" ]; then
+    ARCH="$1"
+else
+    case $(uname -m) in
+        x86_64) ARCH="amd64" ;;
+        aarch64) ARCH="arm64" ;;
+        armv7l) ARCH="armhf" ;;
+        *) ARCH="amd64" ;;
+    esac
+fi
+
+echo "Building .deb package for architecture: $ARCH"
 
 # Create build directory structure
 BUILD_DIR="build/nos_${VERSION}_${ARCH}"
@@ -15,8 +28,22 @@ mkdir -p "${BUILD_DIR}/usr/share/doc/nos"
 mkdir -p "${BUILD_DIR}/usr/share/pixmaps"
 
 # Build the binary
-echo "Building nos binary..."
-go build -ldflags="-s -w" -o "${BUILD_DIR}/usr/local/bin/nos"
+echo "Building nos binary for $ARCH..."
+case $ARCH in
+    amd64)
+        GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o "${BUILD_DIR}/usr/local/bin/nos"
+        ;;
+    arm64)
+        GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o "${BUILD_DIR}/usr/local/bin/nos"
+        ;;
+    armhf)
+        GOOS=linux GOARCH=arm GOARM=7 go build -ldflags="-s -w" -o "${BUILD_DIR}/usr/local/bin/nos"
+        ;;
+    *)
+        echo "Unsupported architecture: $ARCH"
+        exit 1
+        ;;
+esac
 
 # Copy documentation
 cp README.md "${BUILD_DIR}/usr/share/doc/nos/"
@@ -42,11 +69,11 @@ EOF
 cat > "${BUILD_DIR}/usr/share/doc/nos/copyright" << EOF
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: nos
-Upstream-Contact: Tim Dev <tim@example.com>
+Upstream-Contact: PlebOne <contact@plebdev.org>
 Source: https://github.com/PlebOne/nos
 
 Files: *
-Copyright: 2024 Tim Dev
+Copyright: 2024 PlebOne
 License: MIT
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -71,13 +98,15 @@ EOF
 cat > "${BUILD_DIR}/usr/share/doc/nos/changelog" << EOF
 nos (${VERSION}) stable; urgency=medium
 
-  * Initial release
+  * Updated to version ${VERSION}
   * Interactive menu-driven interface
   * Secure key storage using system keyring
   * Multi-relay posting support
   * Relay management features
   * Post verification
   * Beautiful UI with Charm.sh
+  * Account switching and reset functionality
+  * Post verification across relays
 
  -- ${MAINTAINER}  $(date -R)
 EOF
@@ -91,10 +120,22 @@ chmod 644 "${BUILD_DIR}/usr/share/pixmaps/nos.png"
 
 # Build the package
 echo "Building debian package..."
-dpkg-deb --build "${BUILD_DIR}"
-
-# Move package to dist directory
-mkdir -p dist
-mv "build/nos_${VERSION}_${ARCH}.deb" "dist/"
-
-echo "Package built: dist/nos_${VERSION}_${ARCH}.deb"
+if dpkg-deb --build "${BUILD_DIR}"; then
+    # Move package to dist directory
+    mkdir -p dist
+    mv "build/nos_${VERSION}_${ARCH}.deb" "dist/"
+    
+    echo "✅ Package built successfully: dist/nos_${VERSION}_${ARCH}.deb"
+    echo ""
+    echo "📋 To install locally:"
+    echo "   sudo dpkg -i dist/nos_${VERSION}_${ARCH}.deb"
+    echo ""
+    echo "📋 To check package info:"
+    echo "   dpkg -I dist/nos_${VERSION}_${ARCH}.deb"
+    echo ""
+    echo "📋 To test installation:"
+    echo "   nos --help"
+else
+    echo "❌ Failed to build package"
+    exit 1
+fi
